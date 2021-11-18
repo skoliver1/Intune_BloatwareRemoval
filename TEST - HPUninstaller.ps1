@@ -40,11 +40,10 @@ $UnwantedStoreApps = @(
     "AD2F1837.HPSupportAssistant", # prompts to save preferences and opens Edge.  Not sure what will happen when this applies during setup.
     "AD2F1837.HPEasyClean",
     "AD2F1837.HPWorkWell",
+    "AD2F1837.myHP",
     "Microsoft.MicrosoftSolitaireCollection",
     "Microsoft.SkypeApp",
     "Microsoft.Office.OneNote",
-    "Microsoft.ZuneMusic",
-    "Microsoft.ZuneVideo",
     "Microsoft.MicrosoftOfficeHub",
     "microsoft.windowscommunicationsapps",
     "Tile.TileWindowsApplication"
