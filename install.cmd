@@ -1,0 +1,1 @@
+Powershell -ExecutionPolicy Bypass -File "%~dp0TEST - HPUninstaller.ps1"
