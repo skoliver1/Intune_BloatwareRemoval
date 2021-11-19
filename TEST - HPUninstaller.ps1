@@ -1,32 +1,27 @@
 # Created 11/15/2021 by Steve Oliver
 # Removal of HP Software we don't want
 
-# edit - 11/16/21
-# add Mail and Calendar (microsoft.windowscommunicationsapps)
-# fix issue with nuget installation
-# added detection method if failure occurs
-
 Set-Location ${PSScriptRoot}
 $time = get-date -Format "yyyy-MM-dd-HH-mm"
 $LogPath = "$env:WinDir\Logs\Intune\BloatwareUninstaller"
 Start-Transcript -Path "$LogPath\Transcript_$time.log"
 
-Write-Host "`n`nAdding Nuget if not installed"
+"`n`nAdding Nuget if not installed"
 $nuget = "$env:ProgramFiles\PackageManagement\ProviderAssemblies\nuget"
 If (!(Test-Path "$nuget")) {
     Copy .\nuget $nuget -Recurse
 }
-Write-Host "Nuget detected?"
+"Nuget detected?"
 Write-Host (Test-Path $nuget)
 
-Write-Host "`n`nGathering installed non-store applications"
+"`n`nGathering installed non-store applications"
 try {
     $ProgList = Get-CIMInstance -class Win32_Product
 } catch {
     $ProgList = Get-WMIobject -class Win32_Product
 }
 
-Write-Host "Gathering installed Store applications"
+"Gathering installed Store applications"
 $StoreAppList = Get-AppxProvisionedPackage -Online
 
 $UnwantedList = @(
@@ -50,18 +45,18 @@ $UnwantedStoreApps = @(
 )
 
 $InstalledList = @()
-Write-Host "`n`nNon-Store Applications uninstall section:"
+"`n`nNon-Store Applications uninstall section:"
 Foreach ($app in $UnwantedList) {
     If ($app -in $ProgList.Name) {
-        Write-Host "`"$app`" was found to be installed.  Attempting to uninstall."
+        "`"$app`" was found to be installed.  Attempting to uninstall."
         $InstalledList = $InstalledList + $app
         Uninstall-Package -Name $app -Force -ErrorAction SilentlyContinue > $LogPath\NonStoreApp_$app-Uninstall.log
     } else {
-        Write-Host "`"$app`" is not currently installed.  Moving on."
+        "`"$app`" is not currently installed.  Moving on."
     }
 }
 
-Write-Host "`n`nStore Apps section:"
+"`n`nStore Apps section:"
 $InstalledStoreApps = @()
 Foreach ($StoreApp in $UnwantedStoreApps) {
     # Remove Store app for all users
@@ -69,56 +64,56 @@ Foreach ($StoreApp in $UnwantedStoreApps) {
     # Get-AppxPackage -AllUsers | Where {$_.Name -match $StoreApp} | Remove-AppxPackage -AllUsers
     # Remove Store app for all future users
     If ($StoreApp -in $StoreAppList.DisplayName) {
-        Write-Host "$StoreApp was found to be installed.  Attempting to uninstall."
+        "$StoreApp was found to be installed.  Attempting to uninstall."
         $InstalledStoreApps = $InstalledStoreApps + $StoreApp
         Get-AppxProvisionedPackage -Online | ? {$_.DisplayName -match $StoreApp} | Remove-AppxProvisionedPackage -Online -LogPath $LogPath\StoreApp_$StoreApp_$time.log > $null
     } else {
-        Write-Host "$StoreApp is not installed.  Moving on."
+        "$StoreApp is not installed.  Moving on."
     }
     # Get-AppxProvisionedPackage -Online | Where {$_.DisplayName -match $StoreApp} | Remove-AppxProvisionedPackage -Online -AllUsers
 }
 
-Write-Host "`n`nRefreshing installed applications list"
+"`n`nRefreshing installed applications list"
 try {
     $NewProgList = Get-CIMInstance -class Win32_Product
 } catch {
     $NewProgList = Get-WMIobject -class Win32_Product
 }
 
-Write-Host "Refreshing Store apps list"
+"Refreshing Store apps list"
 $NewStoreAppList = Get-AppxProvisionedPackage -Online
 
-Write-Host "`n`nVerification Section:"
-Write-Host "Non-Store app verification:"
+"`n`nVerification Section:"
+"Non-Store app verification:"
 If ($InstalledList -gt 0) {
     Foreach ($app in $InstalledList) {
         If ($app -in $NewProgList.Name) {
-            Write-Host "`"$app`" was found to still be installed"
+            "`"$app`" was found to still be installed"
             $failure = 1
         } else {
-            Write-Host "`"$app`" was successfully removed"
+            "`"$app`" was successfully removed"
         }
     }
 } else {
-    Write-Host "No non-store apps were installed that need to be verified."
+    "No non-store apps were installed that need to be verified."
 }
 
-Write-Host "`nStore App verification:"
+"`nStore App verification:"
 If ($InstalledStoreApps -gt 0) {
     Foreach ($StoreApp in $InstalledStoreApps) {
         If ($StoreApp -in $NewStoreAppList.DisplayName) {
-            Write-Host "`"$StoreApp`" was found to still be installed."
+            "`"$StoreApp`" was found to still be installed."
             $failure = 1
         } else {
-            Write-Host "`"$StoreApp`" was successfully removed"
+            "`"$StoreApp`" was successfully removed"
         }
     }
 } else {
-    Write-Host "No store apps were installed that need to be verified."
+    "No store apps were installed that need to be verified."
 }
 
 If ($Failure -eq 1) {
-    Write-Host "Failure to uninstall one or more apps detected.  Creating Failure detection file."
+    "Failure to uninstall one or more apps detected.  Creating Failure detection file."
     New-Item -ItemType File -Path "$LogPath\Failure.log" -Force > $null
     Stop-Transcript
     Write-Output $False
