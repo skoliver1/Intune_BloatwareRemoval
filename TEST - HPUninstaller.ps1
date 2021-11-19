@@ -1,6 +1,20 @@
 # Created 11/15/2021 by Steve Oliver
 # Removal of HP Software we don't want
 
+Function Success {
+    New-Item -ItemType File -Path "$LogPath\Success.log" -Force > $null
+    Stop-Transcript
+    Write-Output $True
+    Exit 0
+}
+
+Function Failure {
+    New-Item -ItemType File -Path "$LogPath\Failure.log" -Force > $null
+    Stop-Transcript
+    Write-Output $False
+    Exit 1
+}
+
 Set-Location ${PSScriptRoot}
 $time = get-date -Format "yyyy-MM-dd-HH-mm"
 $LogPath = "$env:WinDir\Logs\Intune\BloatwareUninstaller"
@@ -114,15 +128,12 @@ If ($InstalledStoreApps -gt 0) {
 
 If ($Failure -eq 1) {
     "Failure to uninstall one or more apps detected.  Creating Failure detection file."
-    New-Item -ItemType File -Path "$LogPath\Failure.log" -Force > $null
-    Stop-Transcript
-    Write-Output $False
-    Exit 1
+    Failure
+} else {
+    Success
 }
 
-Stop-Transcript
-Write-Output $True
-Exit 0
+
 
 
 
