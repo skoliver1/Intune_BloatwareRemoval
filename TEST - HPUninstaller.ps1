@@ -68,11 +68,11 @@ $InstalledList = @()
 "`n`nNon-Store Applications uninstall section:"
 Foreach ($app in $UnwantedList) {
     If ($app -in $ProgList.Name) {
-        "`"$app`" was found to be installed.  Attempting to uninstall."
+        "Installed: `"$app"
         $InstalledList = $InstalledList + $app
         Uninstall-Package -Name $app -Force -ErrorAction SilentlyContinue > $LogPath\NonStoreApp_$app-Uninstall.log
     } else {
-        "`"$app`" is not currently installed.  Moving on."
+        "Not Installed: $app"
     }
 }
 
@@ -84,11 +84,11 @@ Foreach ($StoreApp in $UnwantedStoreApps) {
     # Get-AppxPackage -AllUsers | Where {$_.Name -match $StoreApp} | Remove-AppxPackage -AllUsers
     # Remove Store app for all future users
     If ($StoreApp -in $StoreAppList.DisplayName) {
-        "$StoreApp was found to be installed.  Attempting to uninstall."
+        "Installed: $StoreApp"
         $InstalledStoreApps = $InstalledStoreApps + $StoreApp
         Get-AppxProvisionedPackage -Online | ? {$_.DisplayName -match $StoreApp} | Remove-AppxProvisionedPackage -Online -LogPath $LogPath\StoreApp_$StoreApp_$time.log > $null
     } else {
-        "$StoreApp is not installed.  Moving on."
+        "Not installed: $StoreApp"
     }
     # Get-AppxProvisionedPackage -Online | Where {$_.DisplayName -match $StoreApp} | Remove-AppxProvisionedPackage -Online -AllUsers
 }
@@ -108,10 +108,10 @@ $NewStoreAppList = Get-AppxProvisionedPackage -Online
 If ($InstalledList -gt 0) {
     Foreach ($app in $InstalledList) {
         If ($app -in $NewProgList.Name) {
-            "`"$app`" was found to still be installed"
+            "Still installed: $app"
             $failure = 1
         } else {
-            "`"$app`" was successfully removed"
+            "Successfully removed: $app"
         }
     }
 } else {
@@ -122,10 +122,10 @@ If ($InstalledList -gt 0) {
 If ($InstalledStoreApps -gt 0) {
     Foreach ($StoreApp in $InstalledStoreApps) {
         If ($StoreApp -in $NewStoreAppList.DisplayName) {
-            "`"$StoreApp`" was found to still be installed."
+            "Still installed: $StoreApp"
             $failure = 1
         } else {
-            "`"$StoreApp`" was successfully removed"
+            "Successfully removed: $StoreApp"
         }
     }
 } else {
