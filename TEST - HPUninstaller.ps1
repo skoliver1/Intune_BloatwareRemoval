@@ -20,6 +20,12 @@ $time = get-date -Format "yyyy-MM-dd-HH-mm"
 $LogPath = "$env:WinDir\Logs\Intune\BloatwareUninstaller"
 Start-Transcript -Path "$LogPath\Transcript_$time.log"
 
+If ((Test-Path "$LogPath\Failure.log") -or (Test-Path "$LogPath\Success.log")) {
+    "Script has been run before.  Removing previous Success or Failure files to avoid false verification."
+    Remove-Item $LogPath\Success.log
+    Remove-Item $LogPath\Failure.log
+}
+
 "`n`nAdding Nuget if not installed"
 $nuget = "$env:ProgramFiles\PackageManagement\ProviderAssemblies\nuget"
 If (!(Test-Path "$nuget")) {
