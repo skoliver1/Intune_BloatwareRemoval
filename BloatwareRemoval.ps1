@@ -74,7 +74,7 @@ $InstalledList = @()
 "`n`nNon-Store Applications uninstall section:"
 Foreach ($app in $UnwantedList) {
     If ($app -in $ProgList.Name) {
-        "Installed: `"$app"
+        "Installed: $app"
         $InstalledList = $InstalledList + $app
         Uninstall-Package -Name $app -Force -ErrorAction SilentlyContinue > $LogPath\NonStoreApp_$app-Uninstall.log
     } else {
