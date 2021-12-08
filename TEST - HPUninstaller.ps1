@@ -5,14 +5,14 @@ Function Success {
     New-Item -ItemType File -Path "$LogPath\Success.log" -Force > $null
     Stop-Transcript
     Write-Output $True
-    Exit 0
+    Exit 1641 # hard reboot
 }
 
 Function Failure {
     New-Item -ItemType File -Path "$LogPath\Failure.log" -Force > $null
     Stop-Transcript
     Write-Output $False
-    Exit 1
+    Exit 1618
 }
 
 Set-Location ${PSScriptRoot}
@@ -47,6 +47,7 @@ $StoreAppList = Get-AppxProvisionedPackage -Online
 $UnwantedList = @(
     "HP Sure Sense Installer",
     "HP Client Security Manager",
+    "HP Wolf Security",
     "HP Security Update Service",
     "HP Sure Click"
 )
